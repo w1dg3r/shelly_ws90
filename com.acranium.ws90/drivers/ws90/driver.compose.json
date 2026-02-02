@@ -1,0 +1,57 @@
+{
+    "name": {
+        "en": "WS90 Weather Station"
+    },
+    "class": "sensor",
+    "capabilities": [
+        "measure_temperature",
+        "measure_humidity",
+        "measure_pressure",
+        "measure_wind_strength",
+        "measure_wind_angle",
+        "measure_ultraviolet",
+        "measure_luminance",
+        "measure_battery",
+        "measure_rain",
+        "measure_dew_point"
+    ],
+    "capabilitiesOptions": {
+        "measure_wind_strength": {
+            "units": {
+                "en": "m/s"
+            }
+        }
+    },
+    "mobile": {
+        "components": [
+            {
+                "id": "sensor",
+                "capabilities": [
+                    "measure_temperature",
+                    "measure_humidity",
+                    "measure_pressure",
+                    "measure_wind_strength",
+                    "measure_wind_angle",
+                    "measure_rain",
+                    "measure_ultraviolet",
+                    "measure_luminance",
+                    "measure_dew_point",
+                    "measure_battery"
+                ]
+            }
+        ]
+    },
+    "pair": [
+        {
+            "id": "list_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_devices"
+            }
+        },
+        {
+            "id": "add_devices",
+            "template": "add_devices"
+        }
+    ]
+}

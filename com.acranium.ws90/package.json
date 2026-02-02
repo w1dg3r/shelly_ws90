@@ -1,0 +1,15 @@
+{
+  "name": "com.acranium.ws90",
+  "version": "1.0.0",
+  "description": "WS90 Weather Station via MQTT",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mqtt": "^5.3.5"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
