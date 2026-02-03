@@ -22,6 +22,16 @@
             }
         }
     },
+    "energy": {
+        "batteries": [
+            "OTHER"
+        ]
+    },
+    "images": {
+        "small": "/drivers/ws90/assets/images/small.png",
+        "large": "/drivers/ws90/assets/images/large.png",
+        "xlarge": "/drivers/ws90/assets/images/xlarge.png"
+    },
     "mobile": {
         "components": [
             {

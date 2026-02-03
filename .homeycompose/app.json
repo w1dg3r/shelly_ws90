@@ -10,8 +10,9 @@
     "en": "WS90 Weather (MQTT)"
   },
   "description": {
-    "en": "Reads WS90 weather data from MQTT."
+    "en": "Real-time weather monitoring from your WS90 station"
   },
+  "brandColor": "#4A90E2",
   "category": [
     "climate"
   ],
@@ -19,9 +20,18 @@
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
+    "xlarge": "/assets/images/xlarge.jpg"
   },
   "author": {
     "name": "Roger Florén"
-  }
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "w1dger"
+      }
+    }
+  },
+  "source": "https://github.com/w1dg3r/shelly_ws90",
+  "support": "mailto:widger@gmail.com"
 }
