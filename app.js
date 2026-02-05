@@ -2,11 +2,17 @@
 
 const Homey = require('homey');
 const mqtt = require('mqtt');
+const DebugLogger = require('./lib/logger');
 
 module.exports = class WS90App extends Homey.App {
 
   async onInit() {
     this.log('WS90 Weather (MQTT) App initialized');
+
+    // Initialize Logger & Status
+    this.logger = new DebugLogger();
+    this.mqttStatus = 'Initializing...';
+    this.logger.log('INFO', 'SYSTEM', 'App starting...');
 
     // Clear old debug msg on start
     this.homey.settings.set('last_message', '');
@@ -15,6 +21,7 @@ module.exports = class WS90App extends Homey.App {
 
     this.homey.settings.on('set', (key) => {
       if (key.startsWith('mqtt_')) {
+        this.logger.log('INFO', 'SYSTEM', `Setting changed: ${key}`);
         // Debounce settings changes (1 second)
         if (this._settingsDebounce) clearTimeout(this._settingsDebounce);
         this._settingsDebounce = setTimeout(() => {
@@ -50,8 +57,9 @@ module.exports = class WS90App extends Homey.App {
     const clientId = 'homey_ws90_' + Math.random().toString(16).substr(2, 8);
     const brokerUrl = `mqtt://${host}:${port}`;
 
-    this.log(`Connecting to ${brokerUrl} as ${clientId}...`);
-    this.homey.api.realtime('mqtt_status', 'Connecting...');
+    this.mqttStatus = 'Connecting...';
+    this.logger.log('INFO', 'MQTT', `Connecting to ${brokerUrl} (Topic: ${this.topic})`, { host, port, user: user ? '****' : null });
+    this.homey.api.realtime('mqtt_status', this.mqttStatus);
 
     try {
       this.mqttClient = mqtt.connect(brokerUrl, {
@@ -64,15 +72,16 @@ module.exports = class WS90App extends Homey.App {
       });
 
       this.mqttClient.on('connect', () => {
-        this.log('Connected to MQTT');
-        this.homey.api.realtime('mqtt_status', 'Connected');
+        this.mqttStatus = 'Connected';
+        this.logger.log('INFO', 'MQTT', 'Connected to MQTT');
+        this.homey.api.realtime('mqtt_status', this.mqttStatus);
 
         this.mqttClient.subscribe(this.topic, (err) => {
           if (err) {
-            this.error('Subscribe error', err);
+            this.logger.log('ERROR', 'MQTT', `Subscribe error: ${err.message}`, { topic: this.topic });
             this.homey.api.realtime('mqtt_log', `Subscribe Error: ${err.message}`);
           } else {
-            this.log('Subscribed to', this.topic);
+            this.logger.log('INFO', 'MQTT', `Subscribed to topic: ${this.topic}`);
             this.homey.api.realtime('mqtt_log', `Subscribed to ${this.topic}`);
           }
         });
@@ -83,13 +92,16 @@ module.exports = class WS90App extends Homey.App {
       });
 
       this.mqttClient.on('error', (err) => {
-        this.error('MQTT Error', err.message);
-        this.homey.api.realtime('mqtt_status', `Error: ${err.message}`);
+        this.mqttStatus = `Error: ${err.message}`;
+        this.logger.log('ERROR', 'MQTT', `MQTT Client Error: ${err.message}`);
+        this.homey.api.realtime('mqtt_status', this.mqttStatus);
         this.homey.api.realtime('mqtt_log', `Connection Error: ${err.message}`);
       });
 
       this.mqttClient.on('offline', () => {
-        this.homey.api.realtime('mqtt_status', 'Offline / Reconnecting');
+        this.mqttStatus = 'Offline / Reconnecting';
+        this.logger.log('WARN', 'MQTT', 'Broker offline or reconnecting');
+        this.homey.api.realtime('mqtt_status', this.mqttStatus);
       });
 
     } catch (err) {
@@ -111,10 +123,12 @@ module.exports = class WS90App extends Homey.App {
 
     try {
       payload = JSON.parse(rawString);
+      this.logger.log('DEBUG', 'DATA', `Received message on ${topic}`, payload);
 
       this.homey.api.realtime('weather_update', payload);
 
     } catch (err) {
+      this.logger.log('ERROR', 'DATA', 'Failed to parse JSON message', { raw: rawString, error: err.message });
       return;
     }
 

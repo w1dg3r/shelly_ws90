@@ -10,7 +10,13 @@ class WS90Device extends Homey.Device {
     }
 
     updateFromPayload(payload) {
-        if (!payload) return;
+        if (!payload) {
+            this.homey.app.logger.log('WARN', 'DEVICE', `[${this.getName()}] Received empty payload`);
+            return;
+        }
+
+        const receivedFields = Object.keys(payload);
+        this.homey.app.logger.log('DEBUG', 'DEVICE', `[${this.getName()}] Processing payload`, { fields: receivedFields });
 
         // Map: Payload Field -> Homey Capability
         const map = {
@@ -30,8 +36,15 @@ class WS90Device extends Homey.Device {
             if (payload[key] !== undefined && payload[key] !== null) {
                 const val = Number(payload[key]);
                 if (!isNaN(val)) {
-                    this.setCapabilityValue(capability, val).catch(this.error);
+                    this.setCapabilityValue(capability, val).catch(err => {
+                        this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set ${capability}`, { value: val, error: err.message });
+                    });
+                } else {
+                    this.homey.app.logger.log('WARN', 'DEVICE', `[${this.getName()}] Invalid numeric value for ${key}`, { value: payload[key] });
                 }
+            } else {
+                // Potential missing field logging (uncomment if needed, but might be noisy)
+                // this.homey.app.logger.log('DEBUG', 'DEVICE', `[${this.getName()}] Field ${key} missing in payload`);
             }
         }
     }

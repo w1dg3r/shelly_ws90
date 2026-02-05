@@ -1,4 +1,5 @@
 {
+  "1.1.0": "Added rotational debug log system with connection health summary and copy-to-clipboard functionality.",
   "1.0.0": {
     "en": "First version!"
   }

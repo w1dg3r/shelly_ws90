@@ -74,86 +74,260 @@
 </head>
 
 <body>
+    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h2 data-i18n="settings.title" style="text-align: center; margin-bottom: 30px;">WS90 MQTT Configuration</h2>
 
-    <h2 data-i18n="settings.title" style="text-align: center;">MQTT Configuration</h2>
-    <fieldset>
-        <div class="field row">
-            <label>Host</label><input id="host" type="text" placeholder="127.0.0.1 (Homey)" />
+        <!-- Health Summary Card -->
+        <div id="health-card"
+            style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 5px solid #ccc; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div>
+                <div style="font-size: 0.9em; color: #666; text-transform: uppercase; letter-spacing: 1px;">Connection
+                    Status</div>
+                <div id="health-status" style="font-size: 1.4em; font-weight: bold; color: #333;">Waiting for status...
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div id="health-stats" style="font-size: 0.9em; color: #666;">
+                    Last Seen: <span id="stat-last">Never</span><br>
+                    Messages: <span id="stat-count">0</span>
+                </div>
+            </div>
         </div>
-        <div class="field row">
-            <label>Port</label><input id="port" type="number" placeholder="1883" />
-        </div>
-        <div class="field row">
-            <label>Username</label><input id="user" type="text" />
-        </div>
-        <div class="field row">
-            <label>Password</label><input id="pass" type="password" />
-        </div>
-        <div class="field row">
-            <label>Topic</label><input id="topic" type="text" placeholder="shelly/weather/ws90" />
-        </div>
-    </fieldset>
 
-    <button id="save" class="homey-button-primary-full" style="width: 100%; padding: 15px;">Save Configuration</button>
-    <p id="message" style="text-align: center; color: #32d74b; height: 20px;"></p>
+        <fieldset>
+            <legend>Broker Settings</legend>
+            <div class="field row">
+                <label>Host</label><input id="host" type="text" placeholder="127.0.0.1 (Homey)" />
+            </div>
+            <div class="row" style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Port</label><input id="port" type="number" placeholder="1883" />
+                </div>
+                <div style="flex: 2;">
+                    <label>Topic</label><input id="topic" type="text" placeholder="shelly/weather/ws90" />
+                </div>
+            </div>
+            <div class="field row">
+                <label>Username (Optional)</label><input id="user" type="text" />
+            </div>
+            <div class="field row">
+                <label>Password (Optional)</label><input id="pass" type="password" />
+            </div>
+        </fieldset>
 
-    <div class="log-container">
-        <label style="display: inline-block; font-weight: normal;"><input id="debug" type="checkbox"
-                style="width: auto;"> Enable Debug Log</label>
-        <textarea id="last_msg" readonly></textarea>
+        <button id="save" class="homey-button-primary-full"
+            style="width: 100%; padding: 15px; font-weight: bold; margin-bottom: 10px;">Save Configuration</button>
+        <p id="message" style="text-align: center; color: #32d74b; height: 20px; font-weight: 500;"></p>
+
+        <!-- Prerequisites Section -->
+        <details
+            style="margin-top: 20px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; padding: 10px;">
+            <summary style="cursor: pointer; font-weight: 600; color: #856404;">Setup Checklist / Prerequisites
+            </summary>
+            <div style="padding: 10px; font-size: 0.95em; color: #555; line-height: 1.6;">
+                <ul style="padding-left: 20px; margin: 10px 0;">
+                    <li id="check-broker">MQTT Broker is running (Homey app or external)</li>
+                    <li id="check-script">Shelly script is <b>Enabled</b> and <b>Running</b></li>
+                    <li id="check-mac">WS90 MAC address is correct in Shelly script</li>
+                    <li id="check-topic">Topic here matches <code>mqtt_base</code> in Shelly script</li>
+                </ul>
+                <p style="font-size: 0.85em; background: #fff; padding: 8px; border-radius: 4px;">Tip: Check the Shelly
+                    script logs to see if it actually finds the WS90 via BLE.</p>
+            </div>
+        </details>
+
+        <!-- Debug Log Section -->
+        <div class="log-container" style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <input id="debug" type="checkbox"> Enable Debug Log
+                </label>
+                <div style="display: flex; gap: 10px;">
+                    <button id="copy-log"
+                        style="padding: 4px 12px; font-size: 0.8em; border: 1px solid #ccc; background: #fff; border-radius: 4px;">Copy
+                        Log</button>
+                    <button id="clear-log"
+                        style="padding: 4px 12px; font-size: 0.8em; border: 1px solid #ccc; background: #fff; border-radius: 4px;">Clear</button>
+                </div>
+            </div>
+
+            <div id="log-viewer"
+                style="height: 300px; overflow-y: auto; background: #1e1e1e; color: #d4d4d4; font-family: 'Consolas', 'Monaco', monospace; font-size: 11px; padding: 10px; border-radius: 8px; line-height: 1.4;">
+                <div style="color: #666;">Waiting for logs...</div>
+            </div>
+        </div>
+
+        <p style="text-align: center; color: #666; font-size: 0.8em; margin-top: 40px;">
+            WS90 Weather Station v1.1.0 • <a href="https://github.com/w1dg3r/shelly_ws90" target="_blank"
+                style="color: #007aff;">Source Code</a>
+        </p>
     </div>
 
     <script>
         function onHomeyReady(Homey) {
+            const el = id => document.getElementById(id);
+            const logViewer = el('log-viewer');
+            let lastUpdate = 0;
+
             // Load Settings
-            const get = (key, id) => Homey.get(key, (err, val) => { if (val) document.getElementById(id).value = val; });
-            get('mqtt_host', 'host');
-            get('mqtt_port', 'port');
-            get('mqtt_user', 'user');
-            get('mqtt_pass', 'pass');
-            get('mqtt_topic', 'topic');
-            Homey.get('debug_log', (err, val) => document.getElementById('debug').checked = !!val);
+            const loadSetting = (key, targetId) => Homey.get(key, (err, val) => {
+                if (val !== undefined && val !== null) el(targetId).value = val;
+            });
+
+            loadSetting('mqtt_host', 'host');
+            loadSetting('mqtt_port', 'port');
+            loadSetting('mqtt_user', 'user');
+            loadSetting('mqtt_pass', 'pass');
+            loadSetting('mqtt_topic', 'topic');
+            Homey.get('debug_log', (err, val) => el('debug').checked = !!val);
 
             // Save Logic
-            document.getElementById('save').addEventListener('click', () => {
-                Homey.set('mqtt_host', document.getElementById('host').value);
-                Homey.set('mqtt_port', document.getElementById('port').value);
-                Homey.set('mqtt_user', document.getElementById('user').value);
-                Homey.set('mqtt_pass', document.getElementById('pass').value);
-                Homey.set('mqtt_topic', document.getElementById('topic').value);
-                Homey.set('debug_log', document.getElementById('debug').checked);
+            el('save').addEventListener('click', () => {
+                Homey.set('mqtt_host', el('host').value);
+                Homey.set('mqtt_port', el('port').value);
+                Homey.set('mqtt_user', el('user').value);
+                Homey.set('mqtt_pass', el('pass').value);
+                Homey.set('mqtt_topic', el('topic').value);
+                Homey.set('debug_log', el('debug').checked);
 
-                document.getElementById('message').innerText = 'Saved!';
-                setTimeout(() => document.getElementById('message').innerText = '', 2000);
+                el('message').innerText = 'Saved!';
+                el('message').style.color = '#32d74b';
+                setTimeout(() => el('message').innerText = '', 2000);
             });
 
-            // Status & Log Listeners
-            const logArea = document.getElementById('last_msg');
-            const appendLog = (msg) => {
-                const time = new Date().toLocaleTimeString();
-                logArea.value = `[${time}] ${msg}\n` + logArea.value;
+            // Log Management
+            let logEntries = [];
+
+            const renderLogs = () => {
+                const debugEnabled = el('debug').checked;
+                if (!debugEnabled) {
+                    logViewer.innerHTML = '<div style="color: #666; text-align: center; padding-top: 100px;">Debug Logging Disabled</div>';
+                    return;
+                }
+
+                if (logEntries.length === 0) {
+                    logViewer.innerHTML = '<div style="color: #666;">Waiting for data...</div>';
+                    return;
+                }
+
+                logViewer.innerHTML = logEntries.map(entry => {
+                    const time = new Date(entry.t).toLocaleTimeString();
+                    let color = '#d4d4d4';
+                    if (entry.l === 'ERROR') color = '#f14c4c';
+                    if (entry.l === 'WARN') color = '#cca700';
+                    if (entry.c === 'MQTT') color = '#3794ff';
+                    if (entry.c === 'DATA') color = '#b5cea8';
+                    if (entry.c === 'DEVICE') color = '#da70d6';
+
+                    return `<div style="margin-bottom: 4px; border-bottom: 1px solid #333; padding-bottom: 2px;">
+                        <span style="color: #6a9955;">[${time}]</span> 
+                        <span style="color: ${color}; font-weight: bold;">[${entry.c}]</span> 
+                        ${entry.m}
+                        ${entry.d ? `<br><span style="color: #888; padding-left: 20px; word-break: break-all;">${JSON.stringify(entry.d)}</span>` : ''}
+                    </div>`;
+                }).join('');
             };
 
-            Homey.on('mqtt_status', (status) => {
-                document.getElementById('message').innerText = status;
-                // Color code certain statuses
-                const msgEl = document.getElementById('message');
-                if (status.includes('Error') || status.includes('Not authorized')) msgEl.style.color = 'red';
-                else if (status === 'Connected') msgEl.style.color = '#32d74b';
-                else msgEl.style.color = '#333';
+            const refreshLogs = () => {
+                if (!el('debug').checked) return;
+                console.log('WS90: Fetching logs...');
+                Homey.api('GET', '/logs', null, (err, logs) => {
+                    if (err) {
+                        console.error('WS90: Error fetching logs:', err);
+                        return;
+                    }
+                    if (logs) {
+                        logEntries = logs;
+                        renderLogs();
+                    }
+                });
+            };
 
-                appendLog(`Status: ${status}`);
+            const refreshStatus = () => {
+                console.log('WS90: Fetching status...');
+                Homey.api('GET', '/status', null, (err, data) => {
+                    if (err) {
+                        console.error('WS90: Error fetching status:', err);
+                        return;
+                    }
+                    if (data) {
+                        console.log('WS90: Status received:', data.status);
+                        updateStatusView(data.status);
+                        if (data.summary) {
+                            el('stat-count').innerText = data.summary.messagesReceived || 0;
+                            if (data.summary.lastMessageTime) {
+                                const sec = Math.floor((Date.now() - new Date(data.summary.lastMessageTime).getTime()) / 1000);
+                                el('stat-last').innerText = sec < 60 ? `${sec}s ago` : `${Math.floor(sec / 60)}m ago`;
+                                el('check-topic').innerHTML = '✓ Receiving data on this topic';
+                                el('check-topic').style.color = 'green';
+                            }
+                        }
+                    }
+                });
+            };
+
+            const updateStatusView = (status) => {
+                el('health-status').innerText = status;
+                const card = el('health-card');
+
+                if (status === 'Connected') {
+                    card.style.borderLeftColor = '#32d74b';
+                    el('health-status').style.color = '#32d74b';
+                    el('check-broker').innerHTML = '✓ MQTT Broker is connected';
+                    el('check-broker').style.color = 'green';
+                } else if (status.includes('Error') || status.includes('Offline')) {
+                    card.style.borderLeftColor = '#f14c4c';
+                    el('health-status').style.color = '#f14c4c';
+                } else {
+                    card.style.borderLeftColor = '#ccc';
+                    el('health-status').style.color = '#333';
+                }
+            };
+
+            // Copy to Clipboard
+            el('copy-log').addEventListener('click', () => {
+                const text = logEntries.map(e => `[${e.t}] [${e.l}] [${e.c}] ${e.m} ${e.d ? JSON.stringify(e.d) : ''}`).join('\n');
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                const originalText = el('copy-log').innerText;
+                el('copy-log').innerText = 'Copied!';
+                setTimeout(() => el('copy-log').innerText = originalText, 2000);
             });
 
-            Homey.on('mqtt_log', (msg) => {
-                appendLog(msg);
+            // Clear Log
+            el('clear-log').addEventListener('click', () => {
+                Homey.api('DELETE', '/logs', null, (err) => {
+                    logEntries = [];
+                    renderLogs();
+                });
+            });
+
+            // App Listeners
+            Homey.on('mqtt_status', (status) => {
+                updateStatusView(status);
             });
 
             Homey.on('weather_update', (data) => {
-                if (document.getElementById('debug').checked) {
-                    appendLog(`Data: ${JSON.stringify(data)}`);
-                }
+                refreshLogs();
+                refreshStatus();
             });
+
+            Homey.on('mqtt_log', (msg) => {
+                refreshLogs();
+            });
+
+            // Initial load
+            refreshStatus();
+            refreshLogs();
+
+            // Periodic refresh
+            setInterval(refreshLogs, 5000);
+            setInterval(refreshStatus, 10000);
 
             Homey.ready();
         }
