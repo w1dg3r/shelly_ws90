@@ -66,12 +66,30 @@
         "measure_luminance",
         "measure_battery",
         "measure_rain",
-        "measure_dew_point"
+        "measure_dew_point",
+        "measure_gust_strength",
+        "measure_apparent_temperature"
       ],
       "capabilitiesOptions": {
         "measure_wind_strength": {
           "units": {
             "en": "m/s"
+          }
+        },
+        "measure_gust_strength": {
+          "title": {
+            "en": "Wind Gust"
+          },
+          "units": {
+            "en": "m/s"
+          }
+        },
+        "measure_apparent_temperature": {
+          "title": {
+            "en": "Feels like"
+          },
+          "units": {
+            "en": "°C"
           }
         }
       },
@@ -99,7 +117,9 @@
               "measure_ultraviolet",
               "measure_luminance",
               "measure_dew_point",
-              "measure_battery"
+              "measure_battery",
+              "measure_gust_strength",
+              "measure_apparent_temperature"
             ]
           }
         ]
@@ -121,6 +141,26 @@
     }
   ],
   "capabilities": {
+    "measure_apparent_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Feels like"
+      },
+      "label": {
+        "en": "Feels like"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "decimals": 1,
+      "min": -100,
+      "max": 100,
+      "chartType": "line",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/icon.svg"
+    },
     "measure_dew_point": {
       "type": "number",
       "title": {

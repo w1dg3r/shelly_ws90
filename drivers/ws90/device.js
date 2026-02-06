@@ -7,6 +7,16 @@ class WS90Device extends Homey.Device {
     async onInit() {
         this.log('WS90 Device initialized (Global MQTT)');
         this.setAvailable().catch(this.error);
+
+        // Migration: Add new capabilities if missing
+        if (!this.hasCapability('measure_gust_strength')) {
+            this.log('Adding missing capability: measure_gust_strength');
+            await this.addCapability('measure_gust_strength').catch(this.error);
+        }
+        if (!this.hasCapability('measure_apparent_temperature')) {
+            this.log('Adding missing capability: measure_apparent_temperature');
+            await this.addCapability('measure_apparent_temperature').catch(this.error);
+        }
     }
 
     updateFromPayload(payload) {
@@ -30,7 +40,7 @@ class WS90Device extends Homey.Device {
             'battery': 'measure_battery',
             'precipitation': 'measure_rain',
             'dew_point': 'measure_dew_point',
-            'gust_speed': 'measure_wind_gust'
+            'gust_speed': 'measure_gust_strength'
         };
 
         for (const [key, capability] of Object.entries(map)) {

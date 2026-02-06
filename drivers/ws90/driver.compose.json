@@ -14,7 +14,7 @@
         "measure_battery",
         "measure_rain",
         "measure_dew_point",
-        "measure_wind_gust",
+        "measure_gust_strength",
         "measure_apparent_temperature"
     ],
     "capabilitiesOptions": {
@@ -23,7 +23,7 @@
                 "en": "m/s"
             }
         },
-        "measure_wind_gust": {
+        "measure_gust_strength": {
             "title": {
                 "en": "Wind Gust"
             },
@@ -65,7 +65,7 @@
                     "measure_luminance",
                     "measure_dew_point",
                     "measure_battery",
-                    "measure_wind_gust",
+                    "measure_gust_strength",
                     "measure_apparent_temperature"
                 ]
             }
