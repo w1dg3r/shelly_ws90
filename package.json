@@ -1,6 +1,6 @@
 {
   "name": "com.acranium.ws90",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "WS90 Weather Station via MQTT",
   "main": "app.js",
   "scripts": {

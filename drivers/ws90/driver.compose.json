@@ -13,12 +13,30 @@
         "measure_luminance",
         "measure_battery",
         "measure_rain",
-        "measure_dew_point"
+        "measure_dew_point",
+        "measure_wind_gust",
+        "measure_apparent_temperature"
     ],
     "capabilitiesOptions": {
         "measure_wind_strength": {
             "units": {
                 "en": "m/s"
+            }
+        },
+        "measure_wind_gust": {
+            "title": {
+                "en": "Wind Gust"
+            },
+            "units": {
+                "en": "m/s"
+            }
+        },
+        "measure_apparent_temperature": {
+            "title": {
+                "en": "Feels like"
+            },
+            "units": {
+                "en": "°C"
             }
         }
     },
@@ -46,7 +64,9 @@
                     "measure_ultraviolet",
                     "measure_luminance",
                     "measure_dew_point",
-                    "measure_battery"
+                    "measure_battery",
+                    "measure_wind_gust",
+                    "measure_apparent_temperature"
                 ]
             }
         ]

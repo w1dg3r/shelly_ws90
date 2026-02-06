@@ -110,6 +110,9 @@ let BTHomeDecoder = {
 
         data = data.slice(1);
 
+        // Räknare per ID, behövs för duplicerade IDs (t.ex. 0x44 wind + gust)
+        let seen = {};
+
         while (data.length > 1) {
             let id = data.at(0);
             let def = BTH[id];
@@ -120,7 +123,17 @@ let BTHomeDecoder = {
             if (val === null) break;
 
             if (def.f) val *= def.f;
-            res[def.n] = val;
+
+            seen[id] = (seen[id] || 0) + 1;
+
+            // Specialfall: WS90 skickar två st 0x44 i Packet Type 1
+            if (id === 0x44) {
+                if (seen[id] === 1) res["wind_speed"] = val;	// average
+                else if (seen[id] === 2) res["gust_speed"] = val;	// gust
+                else res["wind_speed_" + seen[id]] = val; // fallback om fler dyker upp
+            } else {
+                res[def.n] = val;
+            }
 
             data = data.slice(getByteSize(def.t));
         }

@@ -1,4 +1,7 @@
 {
+  "1.2.0": {
+    "en": "Added support for wind gust speed measurement and 'Feels like' temperature calculation."
+  },
   "1.1.0": {
     "en": "Added rotational debug log system with connection health summary and copy-to-clipboard functionality."
   },

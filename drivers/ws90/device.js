@@ -29,7 +29,8 @@ class WS90Device extends Homey.Device {
             'illuminance': 'measure_luminance',
             'battery': 'measure_battery',
             'precipitation': 'measure_rain',
-            'dew_point': 'measure_dew_point'
+            'dew_point': 'measure_dew_point',
+            'gust_speed': 'measure_wind_gust'
         };
 
         for (const [key, capability] of Object.entries(map)) {
@@ -42,11 +43,34 @@ class WS90Device extends Homey.Device {
                 } else {
                     this.homey.app.logger.log('WARN', 'DEVICE', `[${this.getName()}] Invalid numeric value for ${key}`, { value: payload[key] });
                 }
-            } else {
-                // Potential missing field logging (uncomment if needed, but might be noisy)
-                // this.homey.app.logger.log('DEBUG', 'DEVICE', `[${this.getName()}] Field ${key} missing in payload`);
             }
         }
+
+        this.updateFeelsLike(payload);
+    }
+
+    updateFeelsLike(payload) {
+        const temp = payload.temperature !== undefined ? Number(payload.temperature) : this.getCapabilityValue('measure_temperature');
+        const windSpeedMs = payload.wind_speed !== undefined ? Number(payload.wind_speed) : this.getCapabilityValue('measure_wind_strength');
+
+        if (temp === null || isNaN(temp) || windSpeedMs === null || isNaN(windSpeedMs)) return;
+
+        let feelsLike = temp;
+        const windSpeedKmh = windSpeedMs * 3.6;
+
+        // WMO / NOAA Wind Chill Index: T <= 10°C and v > 1.3 m/s (4.68 km/h)
+        if (temp <= 10 && windSpeedKmh > 4.68) {
+            feelsLike = 13.12
+                + (0.6215 * temp)
+                - (11.37 * Math.pow(windSpeedKmh, 0.16))
+                + (0.3965 * temp * Math.pow(windSpeedKmh, 0.16));
+
+            feelsLike = Math.round(feelsLike * 10) / 10;
+        }
+
+        this.setCapabilityValue('measure_apparent_temperature', feelsLike).catch(err => {
+            this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set measure_apparent_temperature`, { value: feelsLike, error: err.message });
+        });
     }
 
 }
