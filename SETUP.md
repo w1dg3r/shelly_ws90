@@ -229,6 +229,7 @@ BLE.Scanner.Start(
    - If needed, change `mqtt_base` to a different topic path
 
 4. **Save and enable the script**
+5. **Change the "MQTT settings" in the Shelly device, where to send the data**
 
 ## Step 3: Configure WS90 Homey App
 
