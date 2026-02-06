@@ -300,6 +300,8 @@ Once configured, your WS90 device will provide:
 - Precipitation (mm)
 - Battery (%)
 - Dew Point (°C)
+- Wind Gust (m/s)
+- "Feels Like" Temperature (°C)
 
 ## Support
 
