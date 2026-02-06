@@ -256,8 +256,8 @@
                         if (data.summary) {
                             el('stat-count').innerText = data.summary.messagesReceived || 0;
                             if (data.summary.lastMessageTime) {
-                                const sec = Math.floor((Date.now() - new Date(data.summary.lastMessageTime).getTime()) / 1000);
-                                el('stat-last').innerText = sec < 60 ? `${sec}s ago` : `${Math.floor(sec / 60)}m ago`;
+                                const sec = Math.max(0, Math.floor((Date.now() - new Date(data.summary.lastMessageTime).getTime()) / 1000));
+                                el('stat-last').innerText = sec < 5 ? 'Just now' : (sec < 60 ? `${sec}s ago` : `${Math.floor(sec / 60)}m ago`);
                                 el('check-topic').innerHTML = '✓ Receiving data on this topic';
                                 el('check-topic').style.color = 'green';
                             }
