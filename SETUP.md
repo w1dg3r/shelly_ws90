@@ -37,7 +37,7 @@ If you already have an MQTT broker (like Mosquitto) running on your network, not
 2. **Create the script**:
    - In the Shelly app, go to your Shelly device
    - Navigate to **Scripts** → **Add Script**
-   - Paste the following script:
+   - Paste the following script (DON'T FORGET TO PUT IN YOUR MAC ADDRESS):
 
 ```javascript
 /**
