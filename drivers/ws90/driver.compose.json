@@ -6,16 +6,19 @@
     "capabilities": [
         "measure_temperature",
         "measure_humidity",
-        "measure_pressure",
+        "measure_apparent_temperature",
+        "measure_dew_point",
         "measure_wind_strength",
         "measure_wind_angle",
+        "measure_gust_strength",
+        "measure_pressure",
         "measure_ultraviolet",
         "measure_luminance",
-        "measure_battery",
-        "measure_rain",
-        "measure_dew_point",
-        "measure_gust_strength",
-        "measure_apparent_temperature"
+        "measure_rain_today",
+        "measure_rain_hour",
+        "measure_rain_24h",
+        "alarm_rain",
+        "measure_battery"
     ],
     "capabilitiesOptions": {
         "measure_wind_strength": {
@@ -58,15 +61,38 @@
                     "measure_temperature",
                     "measure_humidity",
                     "measure_pressure",
+                    "measure_dew_point",
+                    "measure_apparent_temperature"
+                ]
+            },
+            {
+                "id": "wind",
+                "capabilities": [
                     "measure_wind_strength",
                     "measure_wind_angle",
-                    "measure_rain",
+                    "measure_gust_strength"
+                ]
+            },
+            {
+                "id": "solar",
+                "capabilities": [
                     "measure_ultraviolet",
-                    "measure_luminance",
-                    "measure_dew_point",
-                    "measure_battery",
-                    "measure_gust_strength",
-                    "measure_apparent_temperature"
+                    "measure_luminance"
+                ]
+            },
+            {
+                "id": "rain",
+                "capabilities": [
+                    "alarm_rain",
+                    "measure_rain_today",
+                    "measure_rain_hour",
+                    "measure_rain_24h"
+                ]
+            },
+            {
+                "id": "battery",
+                "capabilities": [
+                    "measure_battery"
                 ]
             }
         ]

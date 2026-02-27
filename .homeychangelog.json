@@ -1,4 +1,7 @@
 {
+  "1.3.0": {
+    "en": "Added meaningful rain capabilities: Is Raining (alarm), Rain today, Rain last hour and Rain last 24h. Removed raw rain accumulation total."
+  },
   "1.2.0": {
     "en": "Added support for wind gust speed measurement and 'Feels like' temperature calculation."
   },

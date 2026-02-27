@@ -8,15 +8,36 @@ class WS90Device extends Homey.Device {
         this.log('WS90 Device initialized (Global MQTT)');
         this.setAvailable().catch(this.error);
 
+        // Migration: Remove old raw rain capability
+        if (this.hasCapability('measure_rain')) {
+            this.log('Removing legacy capability: measure_rain');
+            await this.removeCapability('measure_rain').catch(this.error);
+        }
+
         // Migration: Add new capabilities if missing
-        if (!this.hasCapability('measure_gust_strength')) {
-            this.log('Adding missing capability: measure_gust_strength');
-            await this.addCapability('measure_gust_strength').catch(this.error);
+        const newCaps = [
+            'measure_gust_strength',
+            'measure_apparent_temperature',
+            'alarm_rain',
+            'measure_rain_today',
+            'measure_rain_hour',
+            'measure_rain_24h'
+        ];
+        for (const cap of newCaps) {
+            if (!this.hasCapability(cap)) {
+                this.log(`Adding missing capability: ${cap}`);
+                await this.addCapability(cap).catch(this.error);
+            }
         }
-        if (!this.hasCapability('measure_apparent_temperature')) {
-            this.log('Adding missing capability: measure_apparent_temperature');
-            await this.addCapability('measure_apparent_temperature').catch(this.error);
-        }
+
+        // Restore rain history from persistent store
+        this.rainHistory = this.getStoreValue('rainHistory') || [];
+        this._lastStoredTs = this.rainHistory.length > 0
+            ? this.rainHistory[this.rainHistory.length - 1].ts
+            : 0;
+        this._lastPrecipitation = this.rainHistory.length > 0
+            ? this.rainHistory[this.rainHistory.length - 1].value
+            : null;
     }
 
     updateFromPayload(payload) {
@@ -28,7 +49,7 @@ class WS90Device extends Homey.Device {
         const receivedFields = Object.keys(payload);
         this.homey.app.logger.log('DEBUG', 'DEVICE', `[${this.getName()}] Processing payload`, { fields: receivedFields });
 
-        // Map: Payload Field -> Homey Capability
+        // Map: Payload Field -> Homey Capability (numeric)
         const map = {
             'temperature': 'measure_temperature',
             'humidity': 'measure_humidity',
@@ -38,7 +59,6 @@ class WS90Device extends Homey.Device {
             'uv': 'measure_ultraviolet',
             'illuminance': 'measure_luminance',
             'battery': 'measure_battery',
-            'precipitation': 'measure_rain',
             'dew_point': 'measure_dew_point',
             'gust_speed': 'measure_gust_strength'
         };
@@ -56,7 +76,15 @@ class WS90Device extends Homey.Device {
             }
         }
 
+        // Boolean rain status
+        if (payload.rain_status !== undefined) {
+            this.setCapabilityValue('alarm_rain', payload.rain_status === 1).catch(err => {
+                this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set alarm_rain`, { error: err.message });
+            });
+        }
+
         this.updateFeelsLike(payload);
+        this.updateRainHistory(payload);
     }
 
     updateFeelsLike(payload) {
@@ -81,6 +109,92 @@ class WS90Device extends Homey.Device {
         this.setCapabilityValue('measure_apparent_temperature', feelsLike).catch(err => {
             this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set measure_apparent_temperature`, { value: feelsLike, error: err.message });
         });
+    }
+
+    updateRainHistory(payload) {
+        const ts = Number(payload.ts);
+        const precipitation = Number(payload.precipitation);
+        if (isNaN(ts) || isNaN(precipitation)) return;
+
+        const nowMs = ts * 1000;
+
+        // Detect sensor reset or uint16 rollover (precipitation dropped)
+        if (this._lastPrecipitation !== null && precipitation < this._lastPrecipitation) {
+            this.homey.app.logger.log('WARN', 'DEVICE', `[${this.getName()}] Rain counter reset detected (${this._lastPrecipitation} -> ${precipitation}), clearing history`);
+            this.rainHistory = [];
+            this._lastStoredTs = 0;
+            this.setStoreValue('rainHistory', []).catch(this.error);
+        }
+        this._lastPrecipitation = precipitation;
+
+        // Downsample: only store one entry per minute to keep history size manageable
+        // (~1,500 entries max for 25h, ~45KB — safe for setStoreValue)
+        let historyUpdated = false;
+        if (ts - this._lastStoredTs >= 60) {
+            this.rainHistory.push({ ts, value: precipitation });
+            this._lastStoredTs = ts;
+            historyUpdated = true;
+
+            // Prune entries older than 25 hours
+            const cutoff = ts - (25 * 3600);
+            this.rainHistory = this.rainHistory.filter(e => e.ts >= cutoff);
+
+            // Persist (only when history changed)
+            this.setStoreValue('rainHistory', this.rainHistory).catch(this.error);
+        }
+
+        // --- Rain last hour (rolling) ---
+        const oneHourAgoTs = ts - 3600;
+        const hourRef = this._findClosestValue(oneHourAgoTs);
+        const rainHour = hourRef !== null ? Math.max(0, precipitation - hourRef) : 0;
+        this.setCapabilityValue('measure_rain_hour', Math.round(rainHour * 10) / 10).catch(err => {
+            this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set measure_rain_hour`, { error: err.message });
+        });
+
+        // --- Rain last 24h (rolling) ---
+        const dayAgoTs = ts - (24 * 3600);
+        const dayRef = this._findClosestValue(dayAgoTs);
+        const rain24h = dayRef !== null ? Math.max(0, precipitation - dayRef) : 0;
+        this.setCapabilityValue('measure_rain_24h', Math.round(rain24h * 10) / 10).catch(err => {
+            this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set measure_rain_24h`, { error: err.message });
+        });
+
+        // --- Rain today (since midnight local time) ---
+        const localDate = new Date(nowMs);
+        const midnightTs = new Date(
+            localDate.getFullYear(),
+            localDate.getMonth(),
+            localDate.getDate()
+        ).getTime() / 1000;
+
+        const midnightRef = this._findFirstValueAtOrAfter(midnightTs);
+        const rainToday = midnightRef !== null ? Math.max(0, precipitation - midnightRef) : 0;
+        this.setCapabilityValue('measure_rain_today', Math.round(rainToday * 10) / 10).catch(err => {
+            this.homey.app.logger.log('ERROR', 'DEVICE', `[${this.getName()}] Failed to set measure_rain_today`, { error: err.message });
+        });
+    }
+
+    // Find the precipitation value of the history entry closest to targetTs
+    _findClosestValue(targetTs) {
+        if (this.rainHistory.length === 0) return null;
+        let best = null;
+        let bestDiff = Infinity;
+        for (const e of this.rainHistory) {
+            const diff = Math.abs(e.ts - targetTs);
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                best = e.value;
+            }
+        }
+        return best;
+    }
+
+    // Find the precipitation value of the FIRST history entry at or after targetTs
+    _findFirstValueAtOrAfter(targetTs) {
+        if (this.rainHistory.length === 0) return null;
+        const sorted = [...this.rainHistory].sort((a, b) => a.ts - b.ts);
+        const found = sorted.find(e => e.ts >= targetTs);
+        return found ? found.value : null;
     }
 
 }

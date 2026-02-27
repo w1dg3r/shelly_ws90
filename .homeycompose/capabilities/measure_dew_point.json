@@ -16,5 +16,5 @@
     "getable": true,
     "setable": false,
     "uiComponent": "sensor",
-    "icon": "/assets/icon.svg"
+    "icon": "/assets/capabilities/dew_point.svg"
 }

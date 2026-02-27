@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.acranium.ws90",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
@@ -59,16 +59,19 @@
       "capabilities": [
         "measure_temperature",
         "measure_humidity",
-        "measure_pressure",
+        "measure_apparent_temperature",
+        "measure_dew_point",
         "measure_wind_strength",
         "measure_wind_angle",
+        "measure_gust_strength",
+        "measure_pressure",
         "measure_ultraviolet",
         "measure_luminance",
-        "measure_battery",
-        "measure_rain",
-        "measure_dew_point",
-        "measure_gust_strength",
-        "measure_apparent_temperature"
+        "measure_rain_today",
+        "measure_rain_hour",
+        "measure_rain_24h",
+        "alarm_rain",
+        "measure_battery"
       ],
       "capabilitiesOptions": {
         "measure_wind_strength": {
@@ -111,15 +114,38 @@
               "measure_temperature",
               "measure_humidity",
               "measure_pressure",
+              "measure_dew_point",
+              "measure_apparent_temperature"
+            ]
+          },
+          {
+            "id": "wind",
+            "capabilities": [
               "measure_wind_strength",
               "measure_wind_angle",
-              "measure_rain",
+              "measure_gust_strength"
+            ]
+          },
+          {
+            "id": "solar",
+            "capabilities": [
               "measure_ultraviolet",
-              "measure_luminance",
-              "measure_dew_point",
-              "measure_battery",
-              "measure_gust_strength",
-              "measure_apparent_temperature"
+              "measure_luminance"
+            ]
+          },
+          {
+            "id": "rain",
+            "capabilities": [
+              "alarm_rain",
+              "measure_rain_today",
+              "measure_rain_hour",
+              "measure_rain_24h"
+            ]
+          },
+          {
+            "id": "battery",
+            "capabilities": [
+              "measure_battery"
             ]
           }
         ]
@@ -141,6 +167,19 @@
     }
   ],
   "capabilities": {
+    "alarm_rain": {
+      "type": "boolean",
+      "title": {
+        "en": "Raining"
+      },
+      "label": {
+        "en": "Is Raining"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/is_raining.svg"
+    },
     "measure_apparent_temperature": {
       "type": "number",
       "title": {
@@ -159,7 +198,7 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/icon.svg"
+      "icon": "/assets/capabilities/apparent_temp.svg"
     },
     "measure_dew_point": {
       "type": "number",
@@ -179,7 +218,67 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/icon.svg"
+      "icon": "/assets/capabilities/dew_point.svg"
+    },
+    "measure_rain_24h": {
+      "type": "number",
+      "title": {
+        "en": "Rain (24h)"
+      },
+      "label": {
+        "en": "Rain last 24h"
+      },
+      "units": {
+        "en": "mm"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 500,
+      "chartType": "line",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/rain_24h.svg"
+    },
+    "measure_rain_hour": {
+      "type": "number",
+      "title": {
+        "en": "Rain (last hour)"
+      },
+      "label": {
+        "en": "Rain last hour"
+      },
+      "units": {
+        "en": "mm"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 500,
+      "chartType": "line",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/rain_hour.svg"
+    },
+    "measure_rain_today": {
+      "type": "number",
+      "title": {
+        "en": "Rain today"
+      },
+      "label": {
+        "en": "Rain today"
+      },
+      "units": {
+        "en": "mm"
+      },
+      "decimals": 1,
+      "min": 0,
+      "max": 500,
+      "chartType": "line",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/rain_today.svg"
     }
   }
 }

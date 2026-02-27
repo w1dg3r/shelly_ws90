@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Left drop (small) -->
+  <path d="M18 10 C18 10 7 28 7 36 C7 44 12 49 18 49 C24 49 29 44 29 36 C29 28 18 10 18 10Z"
+        fill="none" stroke="white" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Centre drop (large) -->
+  <path d="M50 30 C50 30 34 56 34 68 C34 80 41 90 50 90 C59 90 66 80 66 68 C66 56 50 30 50 30Z"
+        fill="none" stroke="white" stroke-width="5" stroke-linejoin="round"/>
+  <!-- Right drop (small) -->
+  <path d="M82 10 C82 10 71 28 71 36 C71 44 76 49 82 49 C88 49 93 44 93 36 C93 28 82 10 82 10Z"
+        fill="none" stroke="white" stroke-width="4" stroke-linejoin="round"/>
+</svg>

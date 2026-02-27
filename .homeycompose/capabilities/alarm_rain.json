@@ -1,0 +1,13 @@
+{
+    "type": "boolean",
+    "title": {
+        "en": "Raining"
+    },
+    "label": {
+        "en": "Is Raining"
+    },
+    "getable": true,
+    "setable": false,
+    "uiComponent": "sensor",
+    "icon": "/assets/capabilities/is_raining.svg"
+}
