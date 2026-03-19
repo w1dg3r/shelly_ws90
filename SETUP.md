@@ -42,13 +42,21 @@ If you already have an MQTT broker (like Mosquitto) running on your network, not
 ```javascript
 /**
  * Shelly Plus BLE → MQTT bridge for WS90 Weather Station
+ *
+ * - Listens for BTHome v2 BLE advertisements from WS90
+ * - Decodes weather data (temp, humidity, pressure, wind, rain, UV, lux)
+ * - Publishes both:
+ *   - Full JSON payload
+ *   - Individual MQTT topics per sensor
+ *
+ * Tested pattern: Shelly Plus Plug S
  */
 
 // ================== CONFIG ==================
 
 let CONFIG = {
     // WS90 MAC address (FROM SHELLY APP)
-    ws90_address: "AA:BB:CC:DD:EE:FF",  // ← CHANGE THIS
+    ws90_address: "AA:BB:CC:DD:EE:FF",
 
     // Base MQTT topic
     mqtt_base: "shelly/weather/ws90",
@@ -66,12 +74,12 @@ CONFIG.ws90_address = CONFIG.ws90_address.toUpperCase();
 let BTHOME_SVC_ID_STR = "fcd2";
 let SCAN_DURATION = BLE.Scanner.INFINITE_SCAN;
 
-let uint8  = 0;
-let int8   = 1;
+let uint8 = 0;
+let int8 = 1;
 let uint16 = 2;
-let int16  = 3;
+let int16 = 3;
 let uint24 = 4;
-let int24  = 5;
+let int24 = 5;
 
 // ================== HELPERS ==================
 
@@ -94,23 +102,23 @@ function mqtt_publish(topic, payload) {
 // ================== BTHOME MAP ==================
 
 let BTH = {
-  0x00: { n: "pid", t: uint8 },
+    0x00: { n: "pid", t: uint8 },
 
-  // Packet type 1
-  0x05: { n: "illuminance", t: uint24, f: 0.01 },
-  0x20: { n: "rain_status", t: uint8 },
-  0x44: { n: "wind_speed", t: uint16, f: 0.01 },
-  0x46: { n: "uv", t: uint8, f: 0.1 },
-  0x5E: { n: "wind_direction", t: uint16, f: 0.01 },
+    // Packet type 1
+    0x05: { n: "illuminance", t: uint24, f: 0.01 },      // lux
+    0x20: { n: "rain_status", t: uint8 },                // 0/1
+    0x44: { n: "wind_speed", t: uint16, f: 0.01 },       // m/s
+    0x46: { n: "uv", t: uint8, f: 0.1 },                 // UV index
+    0x5E: { n: "wind_direction", t: uint16, f: 0.01 },   // degrees
 
-  // Packet type 2
-  0x01: { n: "battery", t: uint8 },
-  0x04: { n: "pressure", t: uint24, f: 0.01 },
-  0x08: { n: "dew_point", t: int16, f: 0.01 },
-  0x0C: { n: "capacitor_voltage", t: uint16, f: 0.001 },
-  0x2E: { n: "humidity", t: uint8 },
-  0x45: { n: "temperature", t: int16, f: 0.1 },
-  0x5F: { n: "precipitation", t: uint16, f: 0.1 }
+    // Packet type 2
+    0x01: { n: "battery", t: uint8 },                     // %
+    0x04: { n: "pressure", t: uint24, f: 0.01 },          // hPa
+    0x08: { n: "dew_point", t: int16, f: 0.01 },         // °C
+    0x0C: { n: "capacitor_voltage", t: uint16, f: 0.001 },// V
+    0x2E: { n: "humidity", t: uint8 },                    // %
+    0x45: { n: "temperature", t: int16, f: 0.1 },         // °C
+    0x5F: { n: "precipitation", t: uint16, f: 0.1 }       // mm
 };
 
 // ================== DECODER ==================
@@ -124,12 +132,12 @@ let BTHomeDecoder = {
 
     getValue: function (type, buf) {
         if (buf.length < getByteSize(type)) return null;
-        if (type === uint8)  return buf.at(0);
-        if (type === int8)   return this.utoi(buf.at(0), 8);
+        if (type === uint8) return buf.at(0);
+        if (type === int8) return this.utoi(buf.at(0), 8);
         if (type === uint16) return (buf.at(1) << 8) | buf.at(0);
-        if (type === int16)  return this.utoi((buf.at(1) << 8) | buf.at(0), 16);
+        if (type === int16) return this.utoi((buf.at(1) << 8) | buf.at(0), 16);
         if (type === uint24) return (buf.at(2) << 16) | (buf.at(1) << 8) | buf.at(0);
-        if (type === int24)  return this.utoi(
+        if (type === int24) return this.utoi(
             (buf.at(2) << 16) | (buf.at(1) << 8) | buf.at(0), 24
         );
         return null;
@@ -139,10 +147,13 @@ let BTHomeDecoder = {
         let res = {};
         let dib = data.at(0);
 
-        if ((dib >> 5) !== 2) return null;
-        if (dib & 0x01) return null;
+        if ((dib >> 5) !== 2) return null;     // BTHome v2 only
+        if (dib & 0x01) return null;           // encrypted → skip
 
         data = data.slice(1);
+
+        // Räknare per ID, behövs för duplicerade IDs (t.ex. 0x44 wind + gust)
+        let seen = {};
 
         while (data.length > 1) {
             let id = data.at(0);
@@ -154,7 +165,17 @@ let BTHomeDecoder = {
             if (val === null) break;
 
             if (def.f) val *= def.f;
-            res[def.n] = val;
+
+            seen[id] = (seen[id] || 0) + 1;
+
+            // Specialfall: WS90 skickar två st 0x44 i Packet Type 1
+            if (id === 0x44) {
+                if (seen[id] === 1) res["wind_speed"] = val;	// average
+                else if (seen[id] === 2) res["gust_speed"] = val;	// gust
+                else res["wind_speed_" + seen[id]] = val; // fallback om fler dyker upp
+            } else {
+                res[def.n] = val;
+            }
 
             data = data.slice(getByteSize(def.t));
         }
