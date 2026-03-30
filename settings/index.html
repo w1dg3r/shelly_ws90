@@ -167,7 +167,7 @@
         function onHomeyReady(Homey) {
             const el = id => document.getElementById(id);
             const logViewer = el('log-viewer');
-            let lastUpdate = 0;
+            let lastUpdate = 0; // reserved for future throttle use
 
             // Load Settings
             const loadSetting = (key, targetId) => Homey.get(key, (err, val) => {
@@ -287,16 +287,27 @@
             // Copy to Clipboard
             el('copy-log').addEventListener('click', () => {
                 const text = logEntries.map(e => `[${e.t}] [${e.l}] [${e.c}] ${e.m} ${e.d ? JSON.stringify(e.d) : ''}`).join('\n');
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
 
-                const originalText = el('copy-log').innerText;
-                el('copy-log').innerText = 'Copied!';
-                setTimeout(() => el('copy-log').innerText = originalText, 2000);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalText = el('copy-log').innerText;
+                        el('copy-log').innerText = 'Copied!';
+                        setTimeout(() => el('copy-log').innerText = originalText, 2000);
+                    }).catch(() => {
+                        alert('Copy failed. Please copy manually.');
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    const originalText = el('copy-log').innerText;
+                    el('copy-log').innerText = 'Copied!';
+                    setTimeout(() => el('copy-log').innerText = originalText, 2000);
+                }
             });
 
             // Clear Log
@@ -313,7 +324,6 @@
             });
 
             Homey.on('weather_update', (data) => {
-                refreshLogs();
                 refreshStatus();
             });
 

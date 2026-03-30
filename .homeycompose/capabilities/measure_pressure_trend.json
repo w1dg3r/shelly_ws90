@@ -1,0 +1,14 @@
+{
+    "type": "string",
+    "title": {
+        "en": "Pressure Trend"
+    },
+    "label": {
+        "en": "Trend"
+    },
+    "getable": true,
+    "setable": false,
+    "uiComponent": "sensor",
+    "insights": false,
+    "icon": "/assets/capabilities/pressure.svg"
+}

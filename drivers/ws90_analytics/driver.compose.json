@@ -1,0 +1,71 @@
+{
+    "name": {
+        "en": "WS90 Analytics Insights"
+    },
+    "class": "sensor",
+    "capabilities": [
+        "measure_wind_beaufort",
+        "measure_wind_direction_string",
+        "measure_rain_rate",
+        "measure_pressure_trend",
+        "measure_solar_drying_index",
+        "alarm_frost",
+        "alarm_rain_imminent"
+    ],
+    "capabilitiesOptions": {
+        "measure_wind_direction_string": {
+            "title": {
+                "en": "Wind Direction"
+            }
+        },
+        "measure_pressure_trend": {
+            "title": {
+                "en": "Pressure Trend"
+            }
+        }
+    },
+    "images": {
+        "small": "/drivers/ws90_analytics/assets/images/small.png",
+        "large": "/drivers/ws90_analytics/assets/images/large.png",
+        "xlarge": "/drivers/ws90_analytics/assets/images/xlarge.png"
+    },
+    "mobile": {
+        "components": [
+            {
+                "id": "sensor",
+                "capabilities": [
+                    "measure_solar_drying_index",
+                    "measure_pressure_trend",
+                    "alarm_frost"
+                ]
+            },
+            {
+                "id": "wind",
+                "capabilities": [
+                    "measure_wind_beaufort",
+                    "measure_wind_direction_string"
+                ]
+            },
+            {
+                "id": "rain",
+                "capabilities": [
+                    "measure_rain_rate",
+                    "alarm_rain_imminent"
+                ]
+            }
+        ]
+    },
+    "pair": [
+        {
+            "id": "list_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_devices"
+            }
+        },
+        {
+            "id": "add_devices",
+            "template": "add_devices"
+        }
+    ]
+}

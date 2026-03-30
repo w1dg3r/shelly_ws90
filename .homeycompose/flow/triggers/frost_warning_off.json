@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Frost risk cleared"
+    },
+    "hint": {
+        "en": "Triggers when frost risk conditions are no longer present."
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+        }
+    ]
+}

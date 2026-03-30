@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Rain no longer expected"
+    },
+    "hint": {
+        "en": "Triggers when rain prediction conditions are no longer met."
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+        }
+    ]
+}

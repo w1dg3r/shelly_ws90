@@ -1,0 +1,18 @@
+{
+    "type": "number",
+    "title": {
+        "en": "Solar Drying Index"
+    },
+    "label": {
+        "en": "Drying Index"
+    },
+    "decimals": 0,
+    "min": 0,
+    "max": 10,
+    "chartType": "stepLine",
+    "getable": true,
+    "setable": false,
+    "uiComponent": "sensor",
+    "insights": true,
+    "icon": "/assets/capabilities/sun.svg"
+}

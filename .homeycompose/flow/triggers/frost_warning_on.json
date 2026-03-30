@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Frost risk detected"
+    },
+    "hint": {
+        "en": "Triggers when conditions indicate a risk of frost (temperature ≤ 3°C and high humidity)."
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+        }
+    ]
+}

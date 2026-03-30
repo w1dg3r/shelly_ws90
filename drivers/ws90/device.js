@@ -129,11 +129,9 @@ class WS90Device extends Homey.Device {
 
         // Downsample: only store one entry per minute to keep history size manageable
         // (~1,500 entries max for 25h, ~45KB — safe for setStoreValue)
-        let historyUpdated = false;
         if (ts - this._lastStoredTs >= 60) {
             this.rainHistory.push({ ts, value: precipitation });
             this._lastStoredTs = ts;
-            historyUpdated = true;
 
             // Prune entries older than 25 hours
             const cutoff = ts - (25 * 3600);
@@ -190,10 +188,10 @@ class WS90Device extends Homey.Device {
     }
 
     // Find the precipitation value of the FIRST history entry at or after targetTs
+    // History is always pushed in chronological order so no sort is needed
     _findFirstValueAtOrAfter(targetTs) {
         if (this.rainHistory.length === 0) return null;
-        const sorted = [...this.rainHistory].sort((a, b) => a.ts - b.ts);
-        const found = sorted.find(e => e.ts >= targetTs);
+        const found = this.rainHistory.find(e => e.ts >= targetTs);
         return found ? found.value : null;
     }
 

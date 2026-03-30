@@ -1,0 +1,14 @@
+{
+    "type": "string",
+    "title": {
+        "en": "Wind Direction"
+    },
+    "label": {
+        "en": "Wind Dir"
+    },
+    "getable": true,
+    "setable": false,
+    "uiComponent": "sensor",
+    "insights": false,
+    "icon": "/assets/capabilities/wind_angle.svg"
+}

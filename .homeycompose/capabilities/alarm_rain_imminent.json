@@ -1,0 +1,20 @@
+{
+    "type": "boolean",
+    "title": {
+        "en": "Rain Expected Soon"
+    },
+    "label": {
+        "en": "Rain Imminent"
+    },
+    "getable": true,
+    "setable": false,
+    "uiComponent": "sensor",
+    "insights": true,
+    "icon": "/assets/capabilities/is_raining.svg",
+    "insightsTitleTrue": {
+        "en": "Yes"
+    },
+    "insightsTitleFalse": {
+        "en": "No"
+    }
+}

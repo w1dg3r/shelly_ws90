@@ -116,14 +116,14 @@ module.exports = class WS90App extends Homey.App {
     let payload;
     let rawString = message.toString();
 
-    // Debug Log
-    if (this.homey.settings.get('debug_log') === true) {
-      this.homey.settings.set('last_message', rawString);
-    }
-
     try {
       payload = JSON.parse(rawString);
       this.logger.log('DEBUG', 'DATA', `Received message on ${topic}`, payload);
+
+      // Debug Log — only store after successful parse so we never write garbage
+      if (this.homey.settings.get('debug_log') === true) {
+        this.homey.settings.set('last_message', rawString);
+      }
 
       this.homey.api.realtime('weather_update', payload);
 
@@ -132,11 +132,13 @@ module.exports = class WS90App extends Homey.App {
       return;
     }
 
-    const driver = this.homey.drivers.getDriver('ws90');
-    if (driver) {
-      driver.getDevices().forEach(device => {
-        device.updateFromPayload(payload);
-      });
+    for (const driverId of ['ws90', 'ws90_analytics']) {
+      const driver = this.homey.drivers.getDriver(driverId);
+      if (driver) {
+        driver.getDevices().forEach(device => {
+          device.updateFromPayload(payload);
+        });
+      }
     }
   }
 

@@ -1,0 +1,15 @@
+{
+    "title": {
+        "en": "Rain expected soon"
+    },
+    "hint": {
+        "en": "Triggers when falling pressure, high humidity and increasing wind indicate imminent rain."
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+        }
+    ]
+}

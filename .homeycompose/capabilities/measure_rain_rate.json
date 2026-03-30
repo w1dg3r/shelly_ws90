@@ -1,0 +1,20 @@
+{
+    "type": "number",
+    "title": {
+        "en": "Rain Rate"
+    },
+    "label": {
+        "en": "Rain Rate"
+    },
+    "units": {
+        "en": "mm/h"
+    },
+    "decimals": 1,
+    "min": 0,
+    "chartType": "line",
+    "getable": true,
+    "setable": false,
+    "uiComponent": "sensor",
+    "insights": true,
+    "icon": "/assets/capabilities/rain_24h.svg"
+}

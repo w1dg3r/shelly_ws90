@@ -1,12 +1,18 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.acranium.ws90",
-  "version": "1.3.0",
+  "version": "1.4.1",
   "compatibility": ">=10.0.0",
   "sdk": 3,
   "platforms": [
     "local"
   ],
+  "1.4.1": {
+    "en": "Fixed 'N/A' issue for wind direction in Analytics device. Switched to standard system icons for better UI consistency. Removed temporary SVG assets."
+  },
+  "1.4.0": {
+    "en": "Added WS90 Analytics Insights device with Beaufort wind scale, wind direction as text, rain rate, pressure trend, solar drying index, frost warning and rain prediction. Fixed rain alarm label to 'Wet'. Enabled Insights graphs for all custom rain capabilities. Code quality improvements."
+  },
   "name": {
     "en": "WS90 Weather (MQTT)"
   },
@@ -49,6 +55,74 @@
       "method": "get",
       "path": "/status"
     }
+  },
+  "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "Frost risk cleared"
+        },
+        "hint": {
+          "en": "Triggers when frost risk conditions are no longer present."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+          }
+        ],
+        "id": "frost_warning_off"
+      },
+      {
+        "title": {
+          "en": "Frost risk detected"
+        },
+        "hint": {
+          "en": "Triggers when conditions indicate a risk of frost (temperature ≤ 3°C and high humidity)."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+          }
+        ],
+        "id": "frost_warning_on"
+      },
+      {
+        "title": {
+          "en": "Rain no longer expected"
+        },
+        "hint": {
+          "en": "Triggers when rain prediction conditions are no longer met."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+          }
+        ],
+        "id": "rain_imminent_off"
+      },
+      {
+        "title": {
+          "en": "Rain expected soon"
+        },
+        "hint": {
+          "en": "Triggers when falling pressure, high humidity and increasing wind indicate imminent rain."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=ws90_analytics"
+          }
+        ],
+        "id": "rain_imminent_on"
+      }
+    ]
   },
   "drivers": [
     {
@@ -164,9 +238,101 @@
         }
       ],
       "id": "ws90"
+    },
+    {
+      "name": {
+        "en": "WS90 Analytics Insights"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_wind_beaufort",
+        "measure_wind_direction_string",
+        "measure_rain_rate",
+        "measure_pressure_trend",
+        "measure_solar_drying_index",
+        "alarm_frost",
+        "alarm_rain_imminent"
+      ],
+      "capabilitiesOptions": {
+        "measure_wind_direction_string": {
+          "title": {
+            "en": "Wind Direction"
+          }
+        },
+        "measure_pressure_trend": {
+          "title": {
+            "en": "Pressure Trend"
+          }
+        }
+      },
+      "images": {
+        "small": "/drivers/ws90_analytics/assets/images/small.png",
+        "large": "/drivers/ws90_analytics/assets/images/large.png",
+        "xlarge": "/drivers/ws90_analytics/assets/images/xlarge.png"
+      },
+      "mobile": {
+        "components": [
+          {
+            "id": "sensor",
+            "capabilities": [
+              "measure_solar_drying_index",
+              "measure_pressure_trend",
+              "alarm_frost"
+            ]
+          },
+          {
+            "id": "wind",
+            "capabilities": [
+              "measure_wind_beaufort",
+              "measure_wind_direction_string"
+            ]
+          },
+          {
+            "id": "rain",
+            "capabilities": [
+              "measure_rain_rate",
+              "alarm_rain_imminent"
+            ]
+          }
+        ]
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "ws90_analytics"
     }
   ],
   "capabilities": {
+    "alarm_frost": {
+      "type": "boolean",
+      "title": {
+        "en": "Frost Warning"
+      },
+      "label": {
+        "en": "Frost Risk"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/snowflake.svg",
+      "insightsTitleTrue": {
+        "en": "Warning"
+      },
+      "insightsTitleFalse": {
+        "en": "Safe"
+      }
+    },
     "alarm_rain": {
       "type": "boolean",
       "title": {
@@ -179,6 +345,26 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/capabilities/is_raining.svg"
+    },
+    "alarm_rain_imminent": {
+      "type": "boolean",
+      "title": {
+        "en": "Rain Expected Soon"
+      },
+      "label": {
+        "en": "Rain Imminent"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/is_raining.svg",
+      "insightsTitleTrue": {
+        "en": "Yes"
+      },
+      "insightsTitleFalse": {
+        "en": "No"
+      }
     },
     "measure_apparent_temperature": {
       "type": "number",
@@ -222,6 +408,20 @@
       "icon": "/assets/capabilities/dew_point.svg",
       "insights": true
     },
+    "measure_pressure_trend": {
+      "type": "string",
+      "title": {
+        "en": "Pressure Trend"
+      },
+      "label": {
+        "en": "Trend"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/pressure.svg"
+    },
     "measure_rain_24h": {
       "type": "number",
       "title": {
@@ -264,6 +464,26 @@
       "icon": "/assets/capabilities/rain_hour.svg",
       "insights": true
     },
+    "measure_rain_rate": {
+      "type": "number",
+      "title": {
+        "en": "Rain Rate"
+      },
+      "label": {
+        "en": "Rain Rate"
+      },
+      "units": {
+        "en": "mm/h"
+      },
+      "decimals": 1,
+      "min": 0,
+      "chartType": "line",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/rain_24h.svg"
+    },
     "measure_rain_today": {
       "type": "number",
       "title": {
@@ -284,6 +504,59 @@
       "uiComponent": "sensor",
       "icon": "/assets/capabilities/rain_today.svg",
       "insights": true
+    },
+    "measure_solar_drying_index": {
+      "type": "number",
+      "title": {
+        "en": "Solar Drying Index"
+      },
+      "label": {
+        "en": "Drying Index"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 10,
+      "chartType": "stepLine",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/sun.svg"
+    },
+    "measure_wind_beaufort": {
+      "type": "number",
+      "title": {
+        "en": "Beaufort Scale"
+      },
+      "label": {
+        "en": "Beaufort"
+      },
+      "units": {
+        "en": "Bft"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 12,
+      "chartType": "stepLine",
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/wind_gust.svg"
+    },
+    "measure_wind_direction_string": {
+      "type": "string",
+      "title": {
+        "en": "Wind Direction"
+      },
+      "label": {
+        "en": "Wind Dir"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/wind_angle.svg"
     }
   }
 }
