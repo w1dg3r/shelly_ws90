@@ -170,10 +170,10 @@
     "alarm_rain": {
       "type": "boolean",
       "title": {
-        "en": "Raining"
+        "en": "Wet"
       },
       "label": {
-        "en": "Is Raining"
+        "en": "Is Wet"
       },
       "getable": true,
       "setable": false,
@@ -198,7 +198,8 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/capabilities/apparent_temp.svg"
+      "icon": "/assets/capabilities/apparent_temp.svg",
+      "insights": true
     },
     "measure_dew_point": {
       "type": "number",
@@ -218,7 +219,8 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/capabilities/dew_point.svg"
+      "icon": "/assets/capabilities/dew_point.svg",
+      "insights": true
     },
     "measure_rain_24h": {
       "type": "number",
@@ -238,7 +240,8 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/capabilities/rain_24h.svg"
+      "icon": "/assets/capabilities/rain_24h.svg",
+      "insights": true
     },
     "measure_rain_hour": {
       "type": "number",
@@ -258,7 +261,8 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/capabilities/rain_hour.svg"
+      "icon": "/assets/capabilities/rain_hour.svg",
+      "insights": true
     },
     "measure_rain_today": {
       "type": "number",
@@ -278,7 +282,8 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "icon": "/assets/capabilities/rain_today.svg"
+      "icon": "/assets/capabilities/rain_today.svg",
+      "insights": true
     }
   }
 }

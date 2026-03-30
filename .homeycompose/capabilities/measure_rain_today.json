@@ -1,20 +1,21 @@
 {
-    "type": "number",
-    "title": {
-        "en": "Rain today"
-    },
-    "label": {
-        "en": "Rain today"
-    },
-    "units": {
-        "en": "mm"
-    },
-    "decimals": 1,
-    "min": 0,
-    "max": 500,
-    "chartType": "line",
-    "getable": true,
-    "setable": false,
-    "uiComponent": "sensor",
-    "icon": "/assets/capabilities/rain_today.svg"
+  "type": "number",
+  "title": {
+    "en": "Rain today"
+  },
+  "label": {
+    "en": "Rain today"
+  },
+  "units": {
+    "en": "mm"
+  },
+  "decimals": 1,
+  "min": 0,
+  "max": 500,
+  "chartType": "line",
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/rain_today.svg",
+  "insights": true
 }

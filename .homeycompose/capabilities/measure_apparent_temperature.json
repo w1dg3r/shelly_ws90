@@ -1,20 +1,21 @@
 {
-    "type": "number",
-    "title": {
-        "en": "Feels like"
-    },
-    "label": {
-        "en": "Feels like"
-    },
-    "units": {
-        "en": "°C"
-    },
-    "decimals": 1,
-    "min": -100,
-    "max": 100,
-    "chartType": "line",
-    "getable": true,
-    "setable": false,
-    "uiComponent": "sensor",
-    "icon": "/assets/capabilities/apparent_temp.svg"
+  "type": "number",
+  "title": {
+    "en": "Feels like"
+  },
+  "label": {
+    "en": "Feels like"
+  },
+  "units": {
+    "en": "°C"
+  },
+  "decimals": 1,
+  "min": -100,
+  "max": 100,
+  "chartType": "line",
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/apparent_temp.svg",
+  "insights": true
 }

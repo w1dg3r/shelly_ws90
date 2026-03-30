@@ -1,20 +1,21 @@
 {
-    "type": "number",
-    "title": {
-        "en": "Dew Point"
-    },
-    "label": {
-        "en": "Dew Point"
-    },
-    "units": {
-        "en": "°C"
-    },
-    "decimals": 1,
-    "min": -100,
-    "max": 100,
-    "chartType": "line",
-    "getable": true,
-    "setable": false,
-    "uiComponent": "sensor",
-    "icon": "/assets/capabilities/dew_point.svg"
+  "type": "number",
+  "title": {
+    "en": "Dew Point"
+  },
+  "label": {
+    "en": "Dew Point"
+  },
+  "units": {
+    "en": "°C"
+  },
+  "decimals": 1,
+  "min": -100,
+  "max": 100,
+  "chartType": "line",
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/dew_point.svg",
+  "insights": true
 }

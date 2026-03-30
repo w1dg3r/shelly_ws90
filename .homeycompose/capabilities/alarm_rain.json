@@ -1,10 +1,10 @@
 {
     "type": "boolean",
     "title": {
-        "en": "Raining"
+        "en": "Wet"
     },
     "label": {
-        "en": "Is Raining"
+        "en": "Is Wet"
     },
     "getable": true,
     "setable": false,
